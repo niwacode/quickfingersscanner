@@ -1,0 +1,21 @@
+{
+  "name": "cryptoasssistant",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "niwa",
+  "license": "GNUv3",
+  "devDependencies": {
+    "bufferutil": "^3.0.2"
+  },
+  "dependencies": {
+    "@slack/client": "^3.11.0",
+    "d3-node": "^1.1.0",
+    "svgexport": "^0.3.2",
+    "techan": "^0.8.0",
+    "vorpal": "^1.12.0"
+  }
+}
