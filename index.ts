@@ -101,15 +101,6 @@ cli.command('ignorehours <hours>').description('Ignore last <hours> hours when l
     cb();
 });
 
-// Ingoresec not used, remove?
-cli.command('ignoresec <sec>').description('Ignore last <sec> seconds when checking for lowest value.').action((a,cb) => {
-    CurrencyPair.ignoresec = a.sec;
-    console.log(`Ignoring last ${a.sec} s\n`);
-    PrintSettings();
-    cb();
-});
-
-
 cli.command('mindrop <pc>').description('Minimum drop below last low.').action((a,cb) => {
     CurrencyPair.mindrop = a.pc;
     console.log(`Minimum drop set to ${a.pc}%\n`);

@@ -394,9 +394,6 @@ export class CurrencyPair
                 this.lastCurrentLow = currentLow;
                 let unix = Math.round(+new Date()/1000);
 
-                // This is never used, and the function is buggy. Nut sure what the plan was.
-                let lowIgnoreHours = this.GetLow(unix-CurrencyPair.ignorehours*3600, unix-CurrencyPair.ignoresec);
-
                 // Find the closest base
                 let baseCandle = this.FindBase(currentLow, CurrencyPair.ignorehours);
                 if(baseCandle) { // If a base was found
