@@ -3,7 +3,6 @@ var request = require('request');
 import { CandleStick } from './candlestick';
 import { Exchange } from './exchange';
 import { Ticker } from './ticker';
-const telegram = require('telegram-bot-api');
 //const player = require('play-sound')();
 var fs = require('fs');
 import { Slack } from './slack';

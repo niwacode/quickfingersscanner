@@ -14,28 +14,15 @@ var bittrex = new Bittrex();
 var poloniex = new Poloniex();
 var slackkey = "";
 
-ReadSettings();
-if(slackkey && slackkey.length > 0)
-    Slack.setKey(slackkey);
-// Download history for one exchange at a time to avoid high load on Coinigy servers
-// Start subscribing to HitBTC ticker, 1000ms refresh rate
-//hitbtc.TickerTimer(1000);
-// Get all currency pairs on HitBTC and download history
-//hitbtc.GetCurrencyPairs(() => {
-//    console.log("HitBTC history downloaded");
-    // Start subscribing to BitTrex ticker
-    bittrex.TickerTimer(1000);
-    // Get all currency pairs on BitTrex and download history
-    bittrex.GetCurrencyPairs(() => {
-        console.log("BitTrex history downloaded");
-        // Start subscribing to Poloniex ticker
-        poloniex.TickerTimer(1000);
-        // Get all currenct pairs on Poloniex and download history
-        poloniex.GetCurrencyPairs(() => {
-            console.log("Poloniex history downloaded");
-        });
-    }); 
-//});
+// Check if a file exists
+var FileExists = (filePath: string) : boolean => {
+	try{
+		fs.statSync(filePath);
+	}catch(err){
+		if(err.code == 'ENOENT') return false;
+	}
+	return true;
+}
 
 // Print current settings
 var PrintSettings = () => {
@@ -53,7 +40,7 @@ var PrintSettings = () => {
 // Read settings for this currency pair. The settings are the slack thread id and whether to ignore the currency pair (in case of delisting etc)
 var ReadSettings = () => {
     let settingsFile = './data/scanner.settings.json';
-    if(this.FileExists(settingsFile)) {
+    if(FileExists(settingsFile)) {
         let settings = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
         if(settings.ignoreHours)
             CurrencyPair.ignorehours = settings.ignoreHours;
@@ -90,6 +77,28 @@ var WriteSettings = () => {
     fs.writeFileSync(settingsFile, JSON.stringify(settings), 'utf8');
 }
 
+ReadSettings();
+if(slackkey && slackkey.length > 0)
+    Slack.setKey(slackkey);
+// Download history for one exchange at a time to avoid high load on Coinigy servers
+// Start subscribing to HitBTC ticker, 1000ms refresh rate
+//hitbtc.TickerTimer(1000);
+// Get all currency pairs on HitBTC and download history
+//hitbtc.GetCurrencyPairs(() => {
+//    console.log("HitBTC history downloaded");
+    // Start subscribing to BitTrex ticker
+    bittrex.TickerTimer(1000);
+    // Get all currency pairs on BitTrex and download history
+    bittrex.GetCurrencyPairs(() => {
+        console.log("BitTrex history downloaded");
+        // Start subscribing to Poloniex ticker
+        poloniex.TickerTimer(1000);
+        // Get all currenct pairs on Poloniex and download history
+        poloniex.GetCurrencyPairs(() => {
+            console.log("Poloniex history downloaded");
+        });
+    }); 
+//});
 
 
 // Set up vorpal CLI
