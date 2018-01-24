@@ -1,4 +1,5 @@
 import { Slack } from './slack';
+import { Binance } from './exchanges/binance.exchange';
 import { Poloniex } from './exchanges/poloniex.exchange';
 import { Bittrex } from './exchanges/bittrex.exchange';
 import { HitBtc } from './exchanges/hitbtc.exchange';
@@ -12,6 +13,7 @@ var fs = require('fs');
 var hitbtc = new HitBtc();
 var bittrex = new Bittrex();
 var poloniex = new Poloniex();
+var binance = new Binance();
 var slackkey = "";
 
 // Check if a file exists
@@ -96,7 +98,12 @@ if(slackkey && slackkey.length > 0)
         // Get all currenct pairs on Poloniex and download history
         poloniex.GetCurrencyPairs(() => {
             console.log("Poloniex history downloaded");
-        });
+            // Start subscribing to Binance ticker
+            binance.TickerTimer(1000);
+            binance.GetCurrencyPairs(() => {
+                console.log("Binance history downloaded");            
+            });
+        });            
     }); 
 //});
 
@@ -189,6 +196,13 @@ cli.command('rescan').description('Rescan all charts.').action((a, cb) => {
         x.lastBaseCandle = null;
     });
 
+    binance.currencyPairs.forEach(x => {
+        x.lastLowerTime = 0;
+        x.lastDropState = false;
+        x.lastCurrentLow = 0;
+        x.lastBaseCandle = null;
+    });
+
     cb();
 });
 
@@ -213,6 +227,11 @@ cli.command('pairdata').description('Show data for all pairs.').action((a, cb) =
         console.log(`${x.base_curr}/${x.primary_curr} LastLowerTime: ${x.lastLowerTime}, LastDropState: ${x.lastDropState}, LastCurrentLow: ${x.lastCurrentLow}, LastBaseCandle: ${x.lastBaseCandle?JSON.stringify(x.lastBaseCandle):"null"}`);
     });
 
+    console.log('\n\nBinance\n\n');
+    binance.currencyPairs.forEach(x => {
+        console.log(`${x.base_curr}/${x.primary_curr} LastLowerTime: ${x.lastLowerTime}, LastDropState: ${x.lastDropState}, LastCurrentLow: ${x.lastCurrentLow}, LastBaseCandle: ${x.lastBaseCandle?JSON.stringify(x.lastBaseCandle):"null"}`);
+    });
+
     cb();
 
 });
@@ -225,6 +244,9 @@ cli.command('ignore <exchange> <curr1> <curr2>').description("Don't alert for cu
             break;
         case 'btrx':
             exchange = bittrex;
+            break;
+        case 'bina':
+            exchange = binance;
             break;
     }
     if(exchange) {
@@ -250,6 +272,9 @@ cli.command('unignore <exchange> <curr1> <curr2>').description("Stop ignoring cu
         case 'btrx':
             exchange = bittrex;
             break;
+        case 'bina':
+            exchange = binance;
+            break;
     }
     if(exchange) {
         let pairs = exchange.currencyPairs.filter(x => (x.base_curr.toLowerCase() == a.curr1.toLowerCase() && x.primary_curr.toLowerCase() == a.curr2.toLowerCase()) || (x.base_curr.toLowerCase() == a.curr2.toLowerCase() && x.primary_curr.toLowerCase() == a.curr1.toLowerCase()));
@@ -272,6 +297,7 @@ cli.command('stats').description('Print statistics.').action((a, cb) => {
     console.log('Bittrex: ' + bittrex.currencyPairs.length);
     console.log('HitBTC: ' + hitbtc.currencyPairs.length);
     console.log('Poloniex: ' + poloniex.currencyPairs.length);
+    console.log('Binance: ' + binance.currencyPairs.length);    
     let btrx1h = 0;
     let btrx1m = 0;
     bittrex.currencyPairs.forEach(x => {
@@ -293,15 +319,24 @@ cli.command('stats').description('Print statistics.').action((a, cb) => {
         plnx1m += x.candles_1m.length;
     });
 
+    let bina1h = 0;
+    let bina1m = 0;
+    binance.currencyPairs.forEach(x => {
+        bina1h += x.candles_1h.length;
+        bina1m += x.candles_1m.length;
+    });
+
     console.log('\nNumber of 1h candles: ');
     console.log('Bittrex: ' + btrx1h);
     console.log('HitBTC: ' + hitb1h);
     console.log('Poloniex: ' + plnx1h);
+    console.log('Binance: ' + bina1h);
 
     console.log('\nNumber of 1m candles: ');
     console.log('Bittrex: ' + btrx1m);
     console.log('HitBTC: ' + hitb1m);
     console.log('Poloniex: ' + plnx1m);
+    console.log('Binance: ' + bina1m);
 
     cb();
 });
